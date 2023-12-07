@@ -1,8 +1,8 @@
-package spring.kotlin.boutique.domain
+package spring.kotlin.domain
 
 import java.time.LocalDate
 
-data class User (
+data class Panier (
     var email: String,
     var nom: String,
     var adresseDeLivraison: String,

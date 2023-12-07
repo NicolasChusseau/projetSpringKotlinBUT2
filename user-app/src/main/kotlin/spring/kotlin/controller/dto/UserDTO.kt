@@ -1,9 +1,9 @@
-package spring.kotlin.boutique.controller.dto
+package spring.kotlin.controller.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import spring.kotlin.boutique.domain.User
+import spring.kotlin.domain.User
 import java.time.LocalDate
 
 data class UserDTO(

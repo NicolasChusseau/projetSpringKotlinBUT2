@@ -1,4 +1,4 @@
-package spring.kotlin.boutique.controller
+package spring.kotlin.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -12,10 +12,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import spring.kotlin.boutique.controller.dto.UserDTO
-import spring.kotlin.boutique.controller.dto.asUserDTO
-import spring.kotlin.boutique.errors.UserNotFoundError
-import spring.kotlin.boutique.repository.UserRepository
+import spring.kotlin.controller.dto.UserDTO
+import spring.kotlin.controller.dto.asUserDTO
+import spring.kotlin.errors.UserNotFoundError
+import spring.kotlin.repository.UserRepository
 
 
 @RestController

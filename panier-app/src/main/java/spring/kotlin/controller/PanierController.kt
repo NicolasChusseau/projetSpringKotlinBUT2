@@ -1,4 +1,4 @@
-package spring.kotlin.boutique.controller
+package spring.kotlin.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -12,27 +12,27 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import spring.kotlin.boutique.controller.dto.UserDTO
-import spring.kotlin.boutique.controller.dto.asUserDTO
-import spring.kotlin.boutique.errors.UserNotFoundError
-import spring.kotlin.boutique.repository.UserRepository
+import spring.kotlin.controller.dto.PanierDTO
+import spring.kotlin.controller.dto.asPanierDTO
+import spring.kotlin.errors.PanierNotFoundError
+import spring.kotlin.repository.PanierRepository
 
 
 @RestController
 @Validated
-class UserController(val userRepository: UserRepository) {
+class PanierController(val panierRepository: PanierRepository) {
     @Operation(summary = "Create user")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "User created",
+        ApiResponse(responseCode = "201", description = "Panier created",
                 content = [Content(mediaType = "application/json",
-                        schema = Schema(implementation = UserDTO::class)
+                        schema = Schema(implementation = PanierDTO::class)
                 )]),
-        ApiResponse(responseCode = "409", description = "User already exist",
+        ApiResponse(responseCode = "409", description = "Panier already exist",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PostMapping("/api/users")
-    fun create(@RequestBody @Valid user: UserDTO): ResponseEntity<UserDTO> =
-            userRepository.create(user.asUser()).fold(
-                    { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
+    fun create(@RequestBody @Valid user: PanierDTO): ResponseEntity<PanierDTO> =
+            panierRepository.create(user.asPanier()).fold(
+                    { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asPanierDTO()) },
                     { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
 
@@ -42,12 +42,12 @@ class UserController(val userRepository: UserRepository) {
         ApiResponse(responseCode = "200", description = "List users",
                 content = [Content(mediaType = "application/json",
                         array = ArraySchema(
-                                schema = Schema(implementation = UserDTO::class))
+                                schema = Schema(implementation = PanierDTO::class))
                 )])])
     @GetMapping("/api/users")
     fun list() =
-            userRepository.list()
-                    .map { it.asUserDTO() }
+            panierRepository.list()
+                    .map { it.asPanierDTO() }
                     .let {
                         ResponseEntity.ok(it)
                     }
@@ -57,48 +57,48 @@ class UserController(val userRepository: UserRepository) {
         ApiResponse(responseCode = "200", description = "The user",
                 content = [
                     Content(mediaType = "application/json",
-                            schema = Schema(implementation = UserDTO::class))]),
-        ApiResponse(responseCode = "404", description = "User not found")
+                            schema = Schema(implementation = PanierDTO::class))]),
+        ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @GetMapping("/api/users/{email}")
-    fun findOne(@PathVariable @Email email: String): ResponseEntity<UserDTO> {
-        val user = userRepository.get(email)
+    fun findOne(@PathVariable @Email email: String): ResponseEntity<PanierDTO> {
+        val user = panierRepository.get(email)
         return if (user != null) {
-            ResponseEntity.ok(user.asUserDTO())
+            ResponseEntity.ok(user.asPanierDTO())
         } else {
-            throw UserNotFoundError(email)
+            throw PanierNotFoundError(email)
         }
     }
 
     @Operation(summary = "Update a user by email")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "User updated",
+        ApiResponse(responseCode = "200", description = "Panier updated",
                 content = [Content(mediaType = "application/json",
-                        schema = Schema(implementation = UserDTO::class))]),
+                        schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "400", description = "Invalid request",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PutMapping("/api/users/{email}")
-    fun update(@PathVariable @Email email: String, @RequestBody @Valid user: UserDTO): ResponseEntity<Any> =
+    fun update(@PathVariable @Email email: String, @RequestBody @Valid user: PanierDTO): ResponseEntity<Any> =
             if (email != user.email) {
                 ResponseEntity.badRequest().body("Invalid email")
             } else {
-                userRepository.update(user.asUser()).fold(
-                        { success -> ResponseEntity.ok(success.asUserDTO()) },
+                panierRepository.update(user.asPanier()).fold(
+                        { success -> ResponseEntity.ok(success.asPanierDTO()) },
                         { failure -> ResponseEntity.badRequest().body(failure.message) }
                 )
             }
 
     @Operation(summary = "Delete user by email")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "204", description = "User deleted"),
-        ApiResponse(responseCode = "400", description = "User not found",
+        ApiResponse(responseCode = "204", description = "Panier deleted"),
+        ApiResponse(responseCode = "400", description = "Panier not found",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
     ])
     @DeleteMapping("/api/users/{email}")
     fun delete(@PathVariable @Email email: String): ResponseEntity<Any> {
-        val deleted = userRepository.delete(email)
+        val deleted = panierRepository.delete(email)
         return if (deleted == null) {
-            ResponseEntity.badRequest().body("User not found")
+            ResponseEntity.badRequest().body("Panier not found")
         } else {
             ResponseEntity.noContent().build()
         }

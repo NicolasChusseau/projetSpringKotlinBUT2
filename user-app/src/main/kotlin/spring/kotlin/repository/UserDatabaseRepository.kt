@@ -1,10 +1,10 @@
-package spring.kotlin.boutique.repository
+package spring.kotlin.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import spring.kotlin.boutique.domain.User
-import spring.kotlin.boutique.repository.entity.UserEntity
-import spring.kotlin.boutique.repository.entity.asEntity
+import spring.kotlin.domain.User
+import spring.kotlin.repository.entity.UserEntity
+import spring.kotlin.repository.entity.asEntity
 import kotlin.jvm.optionals.getOrNull
 
 @Repository

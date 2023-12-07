@@ -1,6 +1,6 @@
-package spring.kotlin.boutique.repository
+package spring.kotlin.repository
 
-import spring.kotlin.boutique.domain.User
+import spring.kotlin.domain.User
 
 
 interface UserRepository {

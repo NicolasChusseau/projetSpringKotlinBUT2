@@ -1,9 +1,9 @@
-package spring.kotlin.boutique.repository.entity
+package spring.kotlin.repository.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import spring.kotlin.boutique.domain.User
+import spring.kotlin.domain.User
 import java.time.LocalDate
 
 @Entity

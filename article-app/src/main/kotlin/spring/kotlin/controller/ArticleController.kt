@@ -22,41 +22,41 @@ class ArticleController(val articleRepository: ArticleRepository) {
     @Operation(summary = "Create article")
     @ApiResponses(value = [
         io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "201", description = "Article created",
-            content = [Content(
-                mediaType = "application/json",
-                schema = Schema(implementation = ArticleDTO::class)
-            )]
+                responseCode = "201", description = "Article created",
+                content = [Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ArticleDTO::class)
+                )]
         ),
         ApiResponse(responseCode = "409", description = "Article already exist",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PostMapping("/api/articles")
     fun create(@RequestBody @Valid article: ArticleDTO): ResponseEntity<ArticleDTO> =
-        articleRepository.create(article.asArticle()).fold(
-            { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asArticleDTO()) },
-            { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+            articleRepository.create(article.asArticle()).fold(
+                    { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asArticleDTO()) },
+                    { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
     @Operation(summary = "List articles")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "List articles",
-            content = [Content(mediaType = "application/json",
-                array = ArraySchema(
-                    schema = Schema(implementation = ArticleDTO::class))
-            )])])
+                content = [Content(mediaType = "application/json",
+                        array = ArraySchema(
+                                schema = Schema(implementation = ArticleDTO::class))
+                )])])
     @GetMapping("/api/articles")
     fun list() =
-        articleRepository.list()
-            .map { it.asArticleDTO() }
-            .let {
-                ResponseEntity.ok(it)
-            }
+            articleRepository.list()
+                    .map { it.asArticleDTO() }
+                    .let {
+                        ResponseEntity.ok(it)
+                    }
 
     @Operation(summary = "Get article by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The article",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = ArticleDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = ArticleDTO::class))]),
         ApiResponse(responseCode = "404", description = "Article not found")
     ])
     @GetMapping("/api/articles/{id}")
@@ -72,26 +72,26 @@ class ArticleController(val articleRepository: ArticleRepository) {
     @Operation(summary = "Update a article by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Article updated",
-            content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = ArticleDTO::class))]),
+                content = [Content(mediaType = "application/json",
+                        schema = Schema(implementation = ArticleDTO::class))]),
         ApiResponse(responseCode = "400", description = "Invalid request",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PutMapping("/api/articles/{id}")
     fun update(@PathVariable id: Int, @RequestBody @Valid article: ArticleDTO): ResponseEntity<Any> =
-        if (id != article.id) {
-            ResponseEntity.badRequest().body("Invalid id")
-        } else {
-            articleRepository.update(article.asArticle()).fold(
-                { success -> ResponseEntity.ok(success.asArticleDTO()) },
-                { failure -> ResponseEntity.badRequest().body(failure.message) }
-            )
-        }
+            if (id != article.id) {
+                ResponseEntity.badRequest().body("Invalid id")
+            } else {
+                articleRepository.update(article.asArticle()).fold(
+                        { success -> ResponseEntity.ok(success.asArticleDTO()) },
+                        { failure -> ResponseEntity.badRequest().body(failure.message) }
+                )
+            }
 
     @Operation(summary = "Delete article by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "204", description = "Article deleted"),
         ApiResponse(responseCode = "400", description = "Article not found",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
     ])
     @DeleteMapping("/api/articles/{id}")
     fun delete(@PathVariable id: Int): ResponseEntity<Any> {

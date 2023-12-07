@@ -22,8 +22,8 @@ class ArticleDatabaseRepository(private val jpa: ArticleJpaRepository) : Article
 
     override fun get(id: Int): Article? {
         return jpa.findById(id)
-            .map { it.asArticle() }
-            .getOrNull()
+                .map { it.asArticle() }
+                .getOrNull()
     }
 
     override fun update(article: Article): Result<Article> = if (jpa.findById(article.id).isPresent) {
@@ -35,9 +35,9 @@ class ArticleDatabaseRepository(private val jpa: ArticleJpaRepository) : Article
 
     override fun delete(id: Int): Article? {
         return jpa.findById(id)
-            .also { jpa.deleteById(id) }
-            .map { it.asArticle() }
-            .getOrNull()
+                .also { jpa.deleteById(id) }
+                .map { it.asArticle() }
+                .getOrNull()
     }
 
 }

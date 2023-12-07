@@ -36,7 +36,6 @@ class PanierController(val panierRepository: PanierRepository) {
                     { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
 
-
     @Operation(summary = "List users")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "List users",

@@ -10,7 +10,7 @@ import java.time.LocalDate
 @Table(name = "users")
 class UserEntity(
         @Id val email: String,
-        val nom : String,
+        val nom: String,
         val adresseDeLivraison: String,
         val estAbonnee: Boolean,
         val dateDerniereCommande: LocalDate?,
@@ -18,4 +18,5 @@ class UserEntity(
 ) {
     fun asUser() = User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
 }
+
 fun User.asEntity() = UserEntity(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)

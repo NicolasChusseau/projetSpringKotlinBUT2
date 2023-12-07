@@ -8,7 +8,7 @@ spring:
         - src/main/kotlin/
 
 management:
-  server.port: 8081
+  server.port: 8082
   endpoints:
     web:
       exposure:

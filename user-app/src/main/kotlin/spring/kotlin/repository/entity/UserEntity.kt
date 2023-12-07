@@ -16,7 +16,9 @@ class UserEntity(
         val dateDerniereCommande: LocalDate?,
         val age: Int
 ) {
-    fun asUser() = User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
+    fun asUser() =
+        User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
 }
 
-fun User.asEntity() = UserEntity(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
+fun User.asEntity() =
+    UserEntity(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)

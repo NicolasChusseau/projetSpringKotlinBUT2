@@ -22,43 +22,61 @@ import spring.kotlin.repository.UserRepository
 @Validated
 class UserController(val userRepository: UserRepository) {
     @Operation(summary = "Create user")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "User created",
-                content = [Content(mediaType = "application/json",
-                        schema = Schema(implementation = UserDTO::class)
-                )]),
-        ApiResponse(responseCode = "409", description = "User already exist",
-                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201", description = "User created",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = UserDTO::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "409", description = "User already exist",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
+            )]
+    )
     @PostMapping("/api/users")
     fun create(@RequestBody @Valid user: UserDTO): ResponseEntity<UserDTO> =
-            userRepository.create(user.asUser()).fold(
-                    { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
-                    { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
-
+        userRepository.create(user.asUser()).fold(
+            { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
+            { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
     @Operation(summary = "List users")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "List users",
-                content = [Content(mediaType = "application/json",
-                        array = ArraySchema(
-                                schema = Schema(implementation = UserDTO::class))
-                )])])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "List users",
+                content = [Content(
+                    mediaType = "application/json",
+                    array = ArraySchema(
+                        schema = Schema(implementation = UserDTO::class)
+                    )
+                )]
+            )]
+    )
     @GetMapping("/api/users")
     fun list() =
-            userRepository.list()
-                    .map { it.asUserDTO() }
-                    .let {
-                        ResponseEntity.ok(it)
-                    }
+        userRepository.list()
+            .map { it.asUserDTO() }
+            .let {
+                ResponseEntity.ok(it)
+            }
 
     @Operation(summary = "Get user by email")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "The user",
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "The user",
                 content = [
-                    Content(mediaType = "application/json",
-                            schema = Schema(implementation = UserDTO::class))]),
-        ApiResponse(responseCode = "404", description = "User not found")
-    ])
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = UserDTO::class)
+                    )]
+            ),
+            ApiResponse(responseCode = "404", description = "User not found")
+        ]
+    )
     @GetMapping("/api/users/{email}")
     fun findOne(@PathVariable @Email email: String): ResponseEntity<UserDTO> {
         val user = userRepository.get(email)
@@ -70,29 +88,41 @@ class UserController(val userRepository: UserRepository) {
     }
 
     @Operation(summary = "Update a user by email")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "User updated",
-                content = [Content(mediaType = "application/json",
-                        schema = Schema(implementation = UserDTO::class))]),
-        ApiResponse(responseCode = "400", description = "Invalid request",
-                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "User updated",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = UserDTO::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400", description = "Invalid request",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
+            )]
+    )
     @PutMapping("/api/users/{email}")
     fun update(@PathVariable @Email email: String, @RequestBody @Valid user: UserDTO): ResponseEntity<Any> =
-            if (email != user.email) {
-                ResponseEntity.badRequest().body("Invalid email")
-            } else {
-                userRepository.update(user.asUser()).fold(
-                        { success -> ResponseEntity.ok(success.asUserDTO()) },
-                        { failure -> ResponseEntity.badRequest().body(failure.message) }
-                )
-            }
+        if (email != user.email) {
+            ResponseEntity.badRequest().body("Invalid email")
+        } else {
+            userRepository.update(user.asUser()).fold(
+                { success -> ResponseEntity.ok(success.asUserDTO()) },
+                { failure -> ResponseEntity.badRequest().body(failure.message) }
+            )
+        }
 
     @Operation(summary = "Delete user by email")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204", description = "User deleted"),
-        ApiResponse(responseCode = "400", description = "User not found",
-                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "User deleted"),
+            ApiResponse(
+                responseCode = "400", description = "User not found",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
+            )
+        ]
+    )
     @DeleteMapping("/api/users/{email}")
     fun delete(@PathVariable @Email email: String): ResponseEntity<Any> {
         val deleted = userRepository.delete(email)

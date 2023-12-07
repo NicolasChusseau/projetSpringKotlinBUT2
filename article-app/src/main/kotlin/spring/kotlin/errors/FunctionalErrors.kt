@@ -1,4 +1,4 @@
-package spring.kotlin.boutique.errors
+package spring.kotlin.errors
 
 sealed class FunctionalErrors(message: String = "", cause: Exception? = null) :
     Exception(message, cause)

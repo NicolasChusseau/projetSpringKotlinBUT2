@@ -17,4 +17,5 @@ class ArticleEntity(
 ) {
     fun asArticle() = Article(this.id, this.nom, this.prix, this.qteStock, this.dateMAJ)
 }
+
 fun Article.asEntity() = ArticleEntity(this.id, this.nom, this.prix, this.qteStock, this.dateMAJ)

@@ -15,7 +15,12 @@ import spring.kotlin.boutique.errors.ArticleNotFoundError
 @ControllerAdvice
 class HttpErrorHandler : ResponseEntityExceptionHandler() {
 
-    override fun handleMethodArgumentNotValid(ex: MethodArgumentNotValidException, headers: HttpHeaders, status: HttpStatusCode, request: WebRequest): ResponseEntity<Any>? {
+    override fun handleMethodArgumentNotValid(
+        ex: MethodArgumentNotValidException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest
+    ): ResponseEntity<Any>? {
         return ResponseEntity.badRequest().body("You're arg is invalid")
     }
 

@@ -2,7 +2,7 @@ package spring.kotlin.domain
 
 import java.time.LocalDate
 
-data class User (
+data class User(
     var email: String,
     var nom: String,
     var adresseDeLivraison: String,

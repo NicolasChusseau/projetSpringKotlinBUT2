@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import jakarta.persistence.Id
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -22,16 +20,20 @@ import spring.kotlin.boutique.repository.ArticleRepository
 @Validated
 class ArticleController(val articleRepository: ArticleRepository) {
     @Operation(summary = "Create article")
-    @ApiResponses(value = [
-        io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "201", description = "Article created",
-            content = [Content(
-                mediaType = "application/json",
-                schema = Schema(implementation = ArticleDTO::class)
+    @ApiResponses(
+        value = [
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "201", description = "Article created",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ArticleDTO::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "409", description = "Article already exist",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
             )]
-        ),
-        ApiResponse(responseCode = "409", description = "Article already exist",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+    )
     @PostMapping("/api/articles")
     fun create(@RequestBody @Valid article: ArticleDTO): ResponseEntity<ArticleDTO> =
         articleRepository.create(article.asArticle()).fold(
@@ -39,12 +41,18 @@ class ArticleController(val articleRepository: ArticleRepository) {
             { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
     @Operation(summary = "List articles")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "List articles",
-            content = [Content(mediaType = "application/json",
-                array = ArraySchema(
-                    schema = Schema(implementation = ArticleDTO::class))
-            )])])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "List articles",
+                content = [Content(
+                    mediaType = "application/json",
+                    array = ArraySchema(
+                        schema = Schema(implementation = ArticleDTO::class)
+                    )
+                )]
+            )]
+    )
     @GetMapping("/api/articles")
     fun list() =
         articleRepository.list()
@@ -54,13 +62,19 @@ class ArticleController(val articleRepository: ArticleRepository) {
             }
 
     @Operation(summary = "Get article by id")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "The article",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = ArticleDTO::class))]),
-        ApiResponse(responseCode = "404", description = "Article not found")
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "The article",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ArticleDTO::class)
+                    )]
+            ),
+            ApiResponse(responseCode = "404", description = "Article not found")
+        ]
+    )
     @GetMapping("/api/articles/{id}")
     fun findOne(@PathVariable id: Int): ResponseEntity<ArticleDTO> {
         val article = articleRepository.get(id)
@@ -72,12 +86,20 @@ class ArticleController(val articleRepository: ArticleRepository) {
     }
 
     @Operation(summary = "Update a article by id")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Article updated",
-            content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = ArticleDTO::class))]),
-        ApiResponse(responseCode = "400", description = "Invalid request",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200", description = "Article updated",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ArticleDTO::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400", description = "Invalid request",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
+            )]
+    )
     @PutMapping("/api/articles/{id}")
     fun update(@PathVariable id: Int, @RequestBody @Valid article: ArticleDTO): ResponseEntity<Any> =
         if (id != article.id) {
@@ -90,11 +112,15 @@ class ArticleController(val articleRepository: ArticleRepository) {
         }
 
     @Operation(summary = "Delete article by id")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "204", description = "Article deleted"),
-        ApiResponse(responseCode = "400", description = "Article not found",
-            content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Article deleted"),
+            ApiResponse(
+                responseCode = "400", description = "Article not found",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))]
+            )
+        ]
+    )
     @DeleteMapping("/api/articles/{id}")
     fun delete(@PathVariable id: Int): ResponseEntity<Any> {
         val deleted = articleRepository.delete(id)

@@ -2,7 +2,8 @@
 
 Le but de ce projet est de créer un système de gestion de stock et de panier sous forme de microservices.
 
-L'architecture micro-service permet d'isoler les parties métier les unes des autres pour qu'elles puissent évoluer plus facilement.
+L'architecture micro-service permet d'isoler les parties métier les unes des autres pour qu'elles puissent évoluer plus
+facilement.
 
 Dans notre cas, il y en aura trois:
 
@@ -45,8 +46,10 @@ Les paniers font le lien entre les utilisateurs et les produits. Les règles son
 
 Le service panier devra proposer deux implémentations de base de données, une en mémoire et une avec une base H2.
 
-Chaque service doit exposer un swagger-ui avec une séparation à l'aide de Tag entre les APIs d'administration (ex. création d'un produit) et les APIs métiers (décrémentation du stock lors d'une vente).
+Chaque service doit exposer un swagger-ui avec une séparation à l'aide de Tag entre les APIs d'administration (ex.
+création d'un produit) et les APIs métiers (décrémentation du stock lors d'une vente).
 
-Une couverture de test est requise pour chaque service avec ce qui vous semble le plus pertinent suivant les parties (test unitaire, test d'intégration...).
+Une couverture de test est requise pour chaque service avec ce qui vous semble le plus pertinent suivant les parties (
+test unitaire, test d'intégration...).
 
 Les logs doivent permettre de suivre les actions et les cas d'erreurs doivent être traités.

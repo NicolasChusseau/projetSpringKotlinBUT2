@@ -1,13 +1,8 @@
 package spring.kotlin.domain
 
-import java.time.LocalDate
 
 data class Panier(
-        var email: String,
-        var nom: String,
-        var adresseDeLivraison: String,
-        var estAbonnee: Boolean,
-        var dateDerniereCommande: LocalDate?,
-        var age: Int
-) {
-}
+        var id: Int,
+        var userId: Int,
+        var articlesPanier: List<ArticlePanier>
+)

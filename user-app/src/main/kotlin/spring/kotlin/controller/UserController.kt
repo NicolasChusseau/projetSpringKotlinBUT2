@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
 import spring.kotlin.controller.dto.UserDTO
 import spring.kotlin.controller.dto.asUserDTO
 import spring.kotlin.errors.UserNotFoundError
@@ -20,7 +21,10 @@ import spring.kotlin.repository.UserRepository
 
 @RestController
 @Validated
-class UserController(val userRepository: UserRepository) {
+class UserController(
+        val userRepository: UserRepository,
+        val restTemplate: RestTemplate
+) {
     @Operation(summary = "Create user")
     @ApiResponses(
         value = [
@@ -37,10 +41,12 @@ class UserController(val userRepository: UserRepository) {
             )]
     )
     @PostMapping("/api/users")
-    fun create(@RequestBody @Valid user: UserDTO): ResponseEntity<UserDTO> =
-        userRepository.create(user.asUser()).fold(
-            { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
-            { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+    fun create(@RequestBody @Valid user: UserDTO): ResponseEntity<UserDTO> {
+        //restTemplate.postForEntity("http://localhost:8082/api/paniers", user, UserDTO::class.java)
+        return userRepository.create(user.asUser()).fold(
+                { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
+                { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+    }
 
     @Operation(summary = "List users")
     @ApiResponses(

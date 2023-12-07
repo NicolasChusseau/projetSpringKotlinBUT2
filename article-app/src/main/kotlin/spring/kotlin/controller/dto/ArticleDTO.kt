@@ -9,7 +9,7 @@ data class ArticleDTO(
         val nom: String,
         val prix: Float,
         val qteStock: Int,
-        val dateMAJ: LocalDate
+        var dateMAJ: LocalDate
 ) {
 
     fun asArticle() = Article(id, nom, prix, qteStock, dateMAJ)

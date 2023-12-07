@@ -15,6 +15,7 @@ import spring.kotlin.controller.dto.ArticleDTO
 import spring.kotlin.controller.dto.asArticleDTO
 import spring.kotlin.errors.ArticleNotFoundError
 import spring.kotlin.repository.ArticleRepository
+import java.time.LocalDate
 
 @RestController
 @Validated
@@ -31,10 +32,12 @@ class ArticleController(val articleRepository: ArticleRepository) {
         ApiResponse(responseCode = "409", description = "Article already exist",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PostMapping("/api/articles")
-    fun create(@RequestBody @Valid article: ArticleDTO): ResponseEntity<ArticleDTO> =
-            articleRepository.create(article.asArticle()).fold(
-                    { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asArticleDTO()) },
-                    { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+    fun create(@RequestBody @Valid article: ArticleDTO): ResponseEntity<ArticleDTO> {
+        article.dateMAJ = LocalDate.now()
+        return articleRepository.create(article.asArticle()).fold(
+                { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asArticleDTO()) },
+                { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+    }
 
     @Operation(summary = "List articles")
     @ApiResponses(value = [
@@ -81,6 +84,7 @@ class ArticleController(val articleRepository: ArticleRepository) {
             if (id != article.id) {
                 ResponseEntity.badRequest().body("Invalid id")
             } else {
+                article.dateMAJ = LocalDate.now()
                 articleRepository.update(article.asArticle()).fold(
                         { success -> ResponseEntity.ok(success.asArticleDTO()) },
                         { failure -> ResponseEntity.badRequest().body(failure.message) }

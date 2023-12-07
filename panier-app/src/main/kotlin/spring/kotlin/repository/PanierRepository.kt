@@ -6,9 +6,9 @@ import spring.kotlin.domain.Panier
 @Repository
 interface PanierRepository {
 
-    fun create(user: Panier): Result<Panier>
-    fun list(age: Int? = null): List<Panier>
-    fun get(email: String): Panier?
-    fun update(user: Panier): Result<Panier>
-    fun delete(email: String): Panier?
+    fun create(panier: Panier): Result<Panier>
+    fun list(): List<Panier>
+    fun get(id: Int): Panier?
+    fun update(panier: Panier): Result<Panier>
+    fun delete(id: Int): Panier?
 }

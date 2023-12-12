@@ -7,8 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Email
-import org.springframework.data.annotation.Id
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.*
 import spring.kotlin.controller.dto.PanierDTO
 import spring.kotlin.controller.dto.asPanierDTO
 import spring.kotlin.domain.ArticlePanier
+import spring.kotlin.domain.Panier
 import spring.kotlin.errors.PanierNotFoundError
 import spring.kotlin.repository.ArticlePanierRepository
 import spring.kotlin.repository.PanierRepository
@@ -33,8 +32,8 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
         ApiResponse(responseCode = "409", description = "Panier already exist",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
     @PostMapping("/api/paniers")
-    fun create(@RequestBody @Valid panier: PanierDTO): ResponseEntity<PanierDTO> =
-            panierRepository.create(panier.asPanier()).fold(
+    fun create(@RequestBody @Valid userEmail: String): ResponseEntity<PanierDTO> =
+            panierRepository.create(Panier(userEmail, mutableListOf())).fold(
                     { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asPanierDTO()) },
                     { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
 
@@ -63,7 +62,7 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @GetMapping("/api/paniers/{id}")
-    fun findOne(@PathVariable id: Int): ResponseEntity<PanierDTO> {
+    fun findOne(@PathVariable id: String): ResponseEntity<PanierDTO> {
         val panier = panierRepository.get(id)
         return if (panier != null) {
             ResponseEntity.ok(panier.asPanierDTO())
@@ -80,13 +79,13 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
                     schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
-    @GetMapping("/api/paniers/addToPanier/{panierId}/{articleId}/{quantite}")
-    fun addArticlePanier(@PathVariable panierId: Int, @PathVariable articleId: Int, @PathVariable quantite: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
-        if (panierId != panier.id) {
+    @GetMapping("/api/paniers/addToPanier/{userEmail}/{articleId}/{quantite}")
+    fun addArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int, @PathVariable quantite: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
+        if (userEmail != panier.userEmail) {
             ResponseEntity.badRequest().body("Invalid id")
         } else {
-            val newArticle = articlePanier.create(ArticlePanier(panierId, articleId, quantite))
-            val panierActuel = panierRepository.get(panierId)
+            val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
+            val panierActuel = panierRepository.get(userEmail)
             //TODO : change to mutable list
             //panierActuel.articlesPanier.add()
             panierRepository.update(panier.asPanier()).fold(
@@ -102,9 +101,9 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
                         schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "400", description = "Invalid request",
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
-    @PutMapping("/api/paniers/{id}")
-    fun update(@PathVariable id: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
-            if (id != panier.id) {
+    @PutMapping("/api/paniers/{userEmail}")
+    fun update(@PathVariable userEmail: String, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
+            if (userEmail != panier.userEmail) {
                 ResponseEntity.badRequest().body("Invalid id")
             } else {
                 panierRepository.update(panier.asPanier()).fold(
@@ -120,7 +119,7 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
                 content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])
     ])
     @DeleteMapping("/api/paniers/{id}")
-    fun delete(@PathVariable id: Int): ResponseEntity<Any> {
+    fun delete(@PathVariable id: String): ResponseEntity<Any> {
         val deleted = panierRepository.delete(id)
         return if (deleted == null) {
             ResponseEntity.badRequest().body("Panier not found")

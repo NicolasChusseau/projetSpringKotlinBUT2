@@ -1,11 +1,11 @@
 package spring.kotlin.controller.dto
 
-import jakarta.persistence.Id
+import jakarta.validation.constraints.Email
 import spring.kotlin.domain.ArticlePanier
 
 data class ArticlePanierDTO(
-        @field:Id val panierId: Int,
-        @field:Id val articleId: Int,
+        @field:Email val panierId: String,
+        val articleId: Int,
         val quantite: Int
 ) {
     fun asArticlePanier() = ArticlePanier(this.panierId, this.articleId, this.quantite)

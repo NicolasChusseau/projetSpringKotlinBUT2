@@ -1,14 +1,13 @@
 package spring.kotlin.controller.dto
 
-import jakarta.persistence.Id
+import jakarta.validation.constraints.Email
 import spring.kotlin.domain.Panier
 
 data class PanierDTO(
-        @field:Id val id: Int,
-        @field:Id val userId: Int,
-        val articlesPanier: List<ArticlePanierDTO>
+    @field:Email val userEmail: String,
+    val articlesPanier: MutableList<ArticlePanierDTO>
 ) {
-    fun asPanier() = Panier(this.id, this.userId, this.articlesPanier.map { it.asArticlePanier() })
+    fun asPanier() = Panier(this.userEmail, this.articlesPanier.map { it.asArticlePanier() }.toMutableList())
 }
 
-fun Panier.asPanierDTO() = PanierDTO(this.id, this.userId, this.articlesPanier.map { it.asArticlePanierDTO() })
+fun Panier.asPanierDTO() = PanierDTO(this.userEmail, this.articlesPanier.map { it.asArticlePanierDTO() }.toMutableList())

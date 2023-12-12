@@ -8,8 +8,8 @@ import spring.kotlin.domain.ArticlePanier
 @Entity
 @Table(name = "articles_panier")
 class ArticlePanierEntity(
-        @Id val panierId: Int,
-        @Id val articleId: Int,
+        @Id val panierId: String,
+        val articleId: Int,
         val quantite: Int
 ) {
     fun asArticlePanier() = ArticlePanier(this.panierId, this.articleId, this.quantite)

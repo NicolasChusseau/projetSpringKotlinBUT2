@@ -1,14 +1,15 @@
 package spring.kotlin.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 import spring.kotlin.domain.ArticlePanier
-import spring.kotlin.domain.Panier
 import spring.kotlin.repository.entity.ArticlePanierEntity
 import spring.kotlin.repository.entity.asEntity
 import kotlin.jvm.optionals.getOrNull
 
+@Repository
 class ArticlePanierDatabaseRepository(private val jpa: ArticlePanierJpaRepository) : ArticlePanierRepository {
-    override fun create(articlePanier: ArticlePanier): Result<ArticlePanier> = if (jpa.findById(articlePanier.id).isPresent) {
+    override fun create(articlePanier: ArticlePanier): Result<ArticlePanier> = if (jpa.findById(articlePanier.articleId).isPresent) {
         //TODO("Peut pas créer si l'article est déjà dans ce panier")
         Result.failure(Exception("ArticlePanier already in DB"))
     } else {
@@ -26,7 +27,7 @@ class ArticlePanierDatabaseRepository(private val jpa: ArticlePanierJpaRepositor
             .getOrNull()
     }
 
-    override fun update(articlePanier: ArticlePanier): Result<ArticlePanier> = if (jpa.findById(articlePanier.id).isPresent) {
+    override fun update(articlePanier: ArticlePanier): Result<ArticlePanier> = if (jpa.findById(articlePanier.articleId).isPresent) {
         //TODO("Peut juste modifier la quantité")
         val saved = jpa.save(articlePanier.asEntity())
         Result.success(saved.asArticlePanier())
@@ -43,5 +44,4 @@ class ArticlePanierDatabaseRepository(private val jpa: ArticlePanierJpaRepositor
 }
 
 
-interface ArticlePanierJpaRepository : JpaRepository<ArticlePanierEntity, Int> {
-}
+interface ArticlePanierJpaRepository : JpaRepository<ArticlePanierEntity, Int>

@@ -9,12 +9,11 @@ import spring.kotlin.domain.Panier
 @Entity
 @Table(name = "paniers")
 class PanierEntity(
-        @Id val id: Int,
-        val userId: Int,
-        @OneToMany(mappedBy = "panierId")
-        val articlesPanier: List<ArticlePanierEntity>
+    @Id val userEmail: String,
+    @OneToMany(mappedBy = "panierId")
+        val articlesPanier: MutableList<ArticlePanierEntity>
 ) {
-    fun asPanier() = Panier(this.id, this.userId, this.articlesPanier.map { it.asArticlePanier() })
+    fun asPanier() = Panier(this.userEmail, this.articlesPanier.map { it.asArticlePanier() }.toMutableList())
 }
 
-fun Panier.asEntity() = PanierEntity(this.id, this.userId, this.articlesPanier.map { it.asEntity() })
+fun Panier.asEntity() = PanierEntity(this.userEmail, this.articlesPanier.map { it.asEntity() }.toMutableList())

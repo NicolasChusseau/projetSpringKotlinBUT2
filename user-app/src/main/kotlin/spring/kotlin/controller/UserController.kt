@@ -12,19 +12,23 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.RestTemplate
 import spring.kotlin.controller.dto.UserDTO
 import spring.kotlin.controller.dto.asUserDTO
 import spring.kotlin.errors.UserNotFoundError
 import spring.kotlin.repository.UserRepository
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 
 @RestController
 @Validated
 class UserController(
         val userRepository: UserRepository,
-        val restTemplate: RestTemplate
 ) {
+    val urlPanier = "http://localhost:8082/api/paniers"
+
     @Operation(summary = "Create user")
     @ApiResponses(
         value = [
@@ -42,10 +46,28 @@ class UserController(
     )
     @PostMapping("/api/users")
     fun create(@RequestBody @Valid user: UserDTO): ResponseEntity<UserDTO> {
-        //restTemplate.postForEntity("http://localhost:8082/api/paniers", user, UserDTO::class.java)
-        return userRepository.create(user.asUser()).fold(
-                { success -> ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
+        val res = userRepository.create(user.asUser()).fold(
+                { success ->
+                    // Create panier associated to user
+                    val client: HttpClient = HttpClient.newHttpClient()
+
+                    val request: HttpRequest = HttpRequest.newBuilder()
+                        .uri(URI.create(urlPanier))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(user.email))
+                        .build()
+
+                    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+                    if (response.statusCode() == 201) {
+                        println("Panier créé avec succès")
+                    } else {
+                        System.err.println("Erreur lors de la création du panier. Code de statut : " + response.statusCode())
+                    }
+
+                    ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
                 { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
+        return res
     }
 
     @Operation(summary = "List users")

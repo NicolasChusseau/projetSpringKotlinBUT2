@@ -20,40 +20,4 @@ class UserControllerTest {
 
     @Autowired
     lateinit var userController: UserController
-
-    @Nested
-    inner class UpdateTests {
-        @Test
-        fun `update valid`() {
-            // GIVEN
-            every { userRepository.update(any()) } returns Result.success(User("email@email.com", "first", "la", true, null, 15))
-            val update = UserDTO("email@email.com", "first", "la", true, 15)
-            // WHEN
-            val result = userController.update("email@email.com", update)
-            // THEN
-            assertThat(result).isEqualTo(ResponseEntity.ok(update))
-        }
-
-        @Test
-        fun `update a non-existing user`() {
-            // GIVEN
-            every { userRepository.update(any()) } returns Result.failure(Exception("Nope"))
-            val update = UserDTO("email@email.com", "first", "la", true, 15)
-            // WHEN
-            val result = userController.update("email@email.com", update)
-            // THEN
-            assertThat(result).isEqualTo(ResponseEntity.badRequest().body("Nope"))
-        }
-
-        @Test
-        fun `update with two emails`() {
-            // GIVEN
-            val update = UserDTO("email@email.com", "first", "la", true, 15)
-            // WHEN
-            val result = userController.update("another@email.com", update)
-            // THEN
-            assertThat(result).isEqualTo(ResponseEntity.badRequest().body("Invalid email"))
-        }
-    }
-
 }

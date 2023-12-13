@@ -1,19 +1,45 @@
 package spring.kotlin.repository.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
-import jakarta.persistence.Table
+import jakarta.persistence.*
+import spring.kotlin.domain.ArticlePanier
 import spring.kotlin.domain.Panier
 
 @Entity
 @Table(name = "paniers")
 class PanierEntity(
-    @Id val userEmail: String,
-    @OneToMany(mappedBy = "panierId")
-        val articlesPanier: MutableList<ArticlePanierEntity>
+        @Id
+        @Column(name = "user_email")
+        val userEmail: String,
+
+        @ElementCollection
+        @CollectionTable(name = "article_panier", joinColumns = [JoinColumn(name = "panier_id")])
+        val articlesPanier: MutableList<ArticlePanierEmbeddable> = mutableListOf()
 ) {
     fun asPanier() = Panier(this.userEmail, this.articlesPanier.map { it.asArticlePanier() }.toMutableList())
 }
 
-fun Panier.asEntity() = PanierEntity(this.userEmail, this.articlesPanier.map { it.asEntity() }.toMutableList())
+fun Panier.asEntity() = PanierEntity(this.userEmail, this.articlesPanier.map { ArticlePanierEmbeddable(it.articleId, it.quantite) }.toMutableList())
+
+@Embeddable
+class ArticlePanierEmbeddable(
+        val articleId: Int,
+        val quantite: Int
+) {
+    fun asArticlePanier() = ArticlePanier(articleId, quantite)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

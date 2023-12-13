@@ -16,13 +16,12 @@ import spring.kotlin.controller.dto.asPanierDTO
 import spring.kotlin.domain.ArticlePanier
 import spring.kotlin.domain.Panier
 import spring.kotlin.errors.PanierNotFoundError
-import spring.kotlin.repository.ArticlePanierRepository
 import spring.kotlin.repository.PanierRepository
 
 
 @RestController
 @Validated
-class PanierController(val panierRepository: PanierRepository, val articlePanier: ArticlePanierRepository) {
+class PanierController(val panierRepository: PanierRepository) {
     @Operation(summary = "Create panier")
     @ApiResponses(value = [
         ApiResponse(responseCode = "201", description = "Panier created",
@@ -84,10 +83,8 @@ class PanierController(val panierRepository: PanierRepository, val articlePanier
         if (userEmail != panier.userEmail) {
             ResponseEntity.badRequest().body("Invalid id")
         } else {
-            val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
             val panierActuel = panierRepository.get(userEmail)
-            //TODO : change to mutable list
-            //panierActuel.articlesPanier.add()
+            panierActuel?.articlesPanier?.add(ArticlePanier(articleId, quantite))
             panierRepository.update(panier.asPanier()).fold(
                 { success -> ResponseEntity.ok(success.asPanierDTO()) },
                 { failure -> ResponseEntity.badRequest().body(failure.message) }

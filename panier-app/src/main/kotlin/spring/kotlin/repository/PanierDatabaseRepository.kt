@@ -7,7 +7,7 @@ import spring.kotlin.repository.entity.PanierEntity
 import spring.kotlin.repository.entity.asEntity
 import kotlin.jvm.optionals.getOrNull
 
-@Repository
+
 class PanierDatabaseRepository(private val jpa: PanierJpaRepository) : PanierRepository {
     override fun create(panier: Panier): Result<Panier> = if (jpa.findById(panier.userEmail).isPresent) {
         Result.failure(Exception("Panier already in DB"))
@@ -43,3 +43,14 @@ class PanierDatabaseRepository(private val jpa: PanierJpaRepository) : PanierRep
 
 
 interface PanierJpaRepository : JpaRepository<PanierEntity, String>
+
+
+
+
+
+
+
+
+
+
+

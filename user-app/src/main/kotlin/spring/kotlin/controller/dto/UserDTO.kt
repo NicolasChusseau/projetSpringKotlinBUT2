@@ -11,12 +11,11 @@ data class UserDTO(
     val nom: String,
     val adresseDeLivraison: String,
     val estAbonnee: Boolean,
-    val dateDerniereCommande: LocalDate?,
     @field:Min(15) @field:Max(120) val age: Int
 ) {
     fun asUser() =
-        User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
+        User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, null, this.age)
 }
 
 fun User.asUserDTO() =
-    UserDTO(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.dateDerniereCommande, this.age)
+    UserDTO(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.age)

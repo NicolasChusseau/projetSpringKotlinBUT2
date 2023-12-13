@@ -5,14 +5,12 @@ import spring.kotlin.domain.Article
 import java.time.LocalDate
 
 data class ArticleDTO(
-        @field:Id val id: Int,
         val nom: String,
         val prix: Float,
-        val qteStock: Int,
-        var dateMAJ: LocalDate
+        val qteStock: Int
 ) {
 
-    fun asArticle() = Article(id, nom, prix, qteStock, dateMAJ)
+    fun asArticle() = Article(0, this.nom, this.prix, this.qteStock, LocalDate.now())
 }
 
-fun Article.asArticleDTO() = ArticleDTO(this.id, this.nom, this.prix, this.qteStock, this.dateMAJ)
+fun Article.asArticleDTO() = ArticleDTO(this.nom, this.prix, this.qteStock)

@@ -26,12 +26,15 @@ class ArticleDatabaseRepository(private val jpa: ArticleJpaRepository) : Article
                 .getOrNull()
     }
 
-    override fun update(article: Article): Result<Article> = if (jpa.findById(article.id).isPresent) {
-        val saved = jpa.save(article.asEntity())
-        Result.success(saved.asArticle())
-    } else {
-        Result.failure(Exception("Article not in DB"))
+    override fun update(article: Article): Result<Article> {
+        return if (jpa.existsById(article.id)) {
+            val saved = jpa.save(article.asEntity())
+            Result.success(saved.asArticle())
+        } else {
+            Result.failure(Exception("Article not in DB"))
+        }
     }
+
 
     override fun delete(id: Int): Article? {
         return jpa.findById(id)

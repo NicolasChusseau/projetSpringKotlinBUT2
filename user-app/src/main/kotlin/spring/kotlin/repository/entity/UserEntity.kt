@@ -1,5 +1,6 @@
 package spring.kotlin.repository.entity
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
@@ -13,6 +14,7 @@ class UserEntity(
     val nom: String,
     val adresseDeLivraison: String,
     val estAbonnee: Boolean,
+    @Column(name = "date_der_com")
     val dateDerniereCommande: LocalDate?,
     val age: Int
 ) {

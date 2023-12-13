@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import spring.kotlin.controller.dto.UserDTO
 import spring.kotlin.controller.dto.asUserDTO
+import spring.kotlin.domain.User
 import spring.kotlin.errors.UserNotFoundError
 import spring.kotlin.repository.UserRepository
 import java.net.URI
@@ -78,7 +79,7 @@ class UserController(
                 content = [Content(
                     mediaType = "application/json",
                     array = ArraySchema(
-                        schema = Schema(implementation = UserDTO::class)
+                        schema = Schema(implementation = User::class)
                     )
                 )]
             )]
@@ -86,7 +87,6 @@ class UserController(
     @GetMapping("/api/users")
     fun list() =
         userRepository.list()
-            .map { it.asUserDTO() }
             .let {
                 ResponseEntity.ok(it)
             }
@@ -99,17 +99,17 @@ class UserController(
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = UserDTO::class)
+                        schema = Schema(implementation = User::class)
                     )]
             ),
             ApiResponse(responseCode = "404", description = "User not found")
         ]
     )
     @GetMapping("/api/users/{email}")
-    fun findOne(@PathVariable @Email email: String): ResponseEntity<UserDTO> {
+    fun findOne(@PathVariable @Email email: String): ResponseEntity<User> {
         val user = userRepository.get(email)
         return if (user != null) {
-            ResponseEntity.ok(user.asUserDTO())
+            ResponseEntity.ok(user)
         } else {
             throw UserNotFoundError(email)
         }

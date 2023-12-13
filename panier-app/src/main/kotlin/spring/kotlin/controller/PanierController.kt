@@ -101,16 +101,15 @@ class PanierController(val panierRepository: PanierRepository) {
             } else {
                 // L'article avec articleId existe déjà dans le panier
                 val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
-                existingArticle.quantite += quantite
-                articlePanier.map { it.articleId == articleId }
-                panierRepository.update(Panier(userEmail, articlePanier))
+                val article = articlePanier.find { it.articleId == articleId }
+                article!!.articleId = existingArticle.quantite + quantite
                 panierRepository.update(Panier(userEmail, articlePanier)).fold(
                     { success -> ResponseEntity.ok(success.asPanierDTO()) },
                     { failure -> ResponseEntity.badRequest().body(failure.message) }
                 )
             }
         }
-
+/*
     //TODO
     @Operation(summary = "Remove quantity panierArticle by id")
     @ApiResponses(value = [
@@ -133,7 +132,7 @@ class PanierController(val panierRepository: PanierRepository) {
                 { failure -> ResponseEntity.badRequest().body(failure.message) }
             )
         }
-
+*/
     @Operation(summary = "Update a panier by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Panier updated",

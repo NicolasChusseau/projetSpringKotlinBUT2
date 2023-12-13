@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import spring.kotlin.errors.CannotCreatedPanierError
 import spring.kotlin.errors.UserNotFoundError
 
 @ControllerAdvice
@@ -25,4 +26,8 @@ class HttpErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(UserNotFoundError::class)
     fun articleNotFound(e: UserNotFoundError) = ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+
+    @ExceptionHandler(CannotCreatedPanierError::class)
+    fun cannotCreatedPanier(e: CannotCreatedPanierError) = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.message)
+
 }

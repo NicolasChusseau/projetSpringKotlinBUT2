@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import spring.kotlin.errors.NotEnoughStockError
 import spring.kotlin.errors.PanierNotFoundError
 
 @ControllerAdvice
@@ -25,4 +26,7 @@ class HttpErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(PanierNotFoundError::class)
     fun articleNotFound(e: PanierNotFoundError) = ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+
+    @ExceptionHandler(NotEnoughStockError::class)
+    fun notEnoughStock(e: NotEnoughStockError) = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
 }

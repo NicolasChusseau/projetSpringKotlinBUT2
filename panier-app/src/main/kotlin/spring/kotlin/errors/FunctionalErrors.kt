@@ -5,3 +5,5 @@ sealed class FunctionalErrors(message: String = "", cause: Exception? = null) :
 
 class PanierNotFoundError(id: String) : FunctionalErrors(message = "Panier $id not found")
 
+class NotEnoughStockError(id: String) : FunctionalErrors(message = "Not enough stock for article $id")
+

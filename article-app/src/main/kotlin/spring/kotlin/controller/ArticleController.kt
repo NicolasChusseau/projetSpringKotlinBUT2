@@ -136,7 +136,7 @@ class ArticleController(val articleRepository: ArticleRepository) {
             } else {
                 existArticle.qteStock -= quantite
             }
-            return articleRepository.update(Article(existArticle.id, existArticle.nom, existArticle.prix, existArticle.qteStock, existArticle.dateMAJ)).fold(
+            return articleRepository.update(Article(existArticle.id, existArticle.nom, existArticle.prix, existArticle.qteStock, LocalDate.now())).fold(
                 { success -> ResponseEntity.ok(success.asArticleDTO()) },
                 { failure -> ResponseEntity.badRequest().body(failure.message) }
             )

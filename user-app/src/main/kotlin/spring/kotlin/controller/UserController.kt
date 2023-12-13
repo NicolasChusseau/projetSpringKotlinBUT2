@@ -15,20 +15,23 @@ import org.springframework.web.bind.annotation.*
 import spring.kotlin.controller.dto.UserDTO
 import spring.kotlin.controller.dto.asUserDTO
 import spring.kotlin.domain.User
+import spring.kotlin.errors.CannotCreatedPanierError
 import spring.kotlin.errors.UserNotFoundError
 import spring.kotlin.repository.UserRepository
+import spring.kotlin.service.HttpService
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.time.LocalDate
 
 
 @RestController
 @Validated
 class UserController(
         val userRepository: UserRepository,
+        val httpService: HttpService
 ) {
-    val urlPanier = "http://localhost:8082/api/paniers"
 
     @Operation(summary = "Create user")
     @ApiResponses(
@@ -50,22 +53,13 @@ class UserController(
         val res = userRepository.create(user.asUser()).fold(
                 { success ->
                     // Create panier associated to user
-                    val client: HttpClient = HttpClient.newHttpClient()
-
-                    val request: HttpRequest = HttpRequest.newBuilder()
-                        .uri(URI.create(urlPanier))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(user.email))
-                        .build()
-
-                    val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-                    if (response.statusCode() == 201) {
-                        println("Panier créé avec succès")
-                    } else {
-                        System.err.println("Erreur lors de la création du panier. Code de statut : " + response.statusCode())
-                    }
-
+                   try {
+                       httpService.post("paniers", user.email)
+                   } catch (e: Exception) {
+                       //On n'a pas pu créer le panier, on supprime l'utilisateur
+                       userRepository.delete(user.email)
+                       throw CannotCreatedPanierError(user.email)
+                   }
                     ResponseEntity.status(HttpStatus.CREATED).body(success.asUserDTO()) },
                 { failure -> ResponseEntity.status(HttpStatus.CONFLICT).build() })
         return res

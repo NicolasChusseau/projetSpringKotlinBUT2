@@ -1,5 +1,6 @@
 package spring.kotlin.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -15,6 +16,7 @@ import spring.kotlin.controller.dto.PanierDTO
 import spring.kotlin.controller.dto.asPanierDTO
 import spring.kotlin.domain.ArticlePanier
 import spring.kotlin.domain.Panier
+import spring.kotlin.errors.NotEnoughStockError
 import spring.kotlin.errors.PanierNotFoundError
 import spring.kotlin.repository.PanierRepository
 import spring.kotlin.service.HttpService
@@ -79,28 +81,30 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
     @Operation(summary = "Add article or quantity panierArticle by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The panier",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = PanierDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @PutMapping("/api/paniers/addQuantity/{userEmail}/{articleId}/{quantite}")
     fun addQuantityArticlePanier(
-        @PathVariable userEmail: String,
-        @PathVariable articleId: Int,
-        @PathVariable quantite: Int
+            @PathVariable userEmail: String,
+            @PathVariable articleId: Int,
+            @PathVariable quantite: Int
     ): ResponseEntity<Any> {
         if (panierRepository.get(userEmail) == null) {
             return ResponseEntity.badRequest().body("Invalid id")
         } else {
             //On vérifie si l'article existe en http
-            val article : String
-            try{
+            val article: String
+            try {
                 article = httpService.get("articles/$articleId")
             } catch (e: Exception) {
                 return ResponseEntity.badRequest().body("L'article n'existe pas")
             }
-            val quantiteDispo = article.substringAfter("qteStock\": ").substringBefore(",")
+            //On transforme le String en ArticleDTO
+            val articleDTO = ObjectMapper().readValue(article, Article::class.java)
+            val quantiteDispo = articleDTO.qteStock
 
             if (quantite < 0) {
                 return ResponseEntity.badRequest().body("La quantité demandée est négative")
@@ -110,7 +114,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
             if (existingArticlePanier == null) {
                 // L'article avec articleId n'existe pas dans le panier
                 //On va vérifier ici que la quantité demandée est inférieure ou égale à la quantité disponible
-                if (quantite > quantiteDispo.toInt()) {
+                if (quantite > quantiteDispo) {
                     return ResponseEntity.badRequest().body("La quantité demandée est supérieure à la quantité disponible")
                 }
                 val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
@@ -122,7 +126,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
             } else {
                 // L'article avec articleId existe déjà dans le panier
                 //On va vérifier ici que la quantité demandée + la quantité de l'article dans le panier est inférieure ou égale à la quantité disponible
-                if (quantite + existingArticlePanier.quantite > quantiteDispo.toInt()) {
+                if (quantite + existingArticlePanier.quantite > quantiteDispo) {
                     return ResponseEntity.badRequest().body("La quantité demandée est supérieure à la quantité disponible")
                 }
                 val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
@@ -139,9 +143,9 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
     @Operation(summary = "Remove quantity panierArticle by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The panier",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = PanierDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @PutMapping("/api/paniers/removeQuantity/{userEmail}/{articleId}/{quantite}")
@@ -185,9 +189,9 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
     @Operation(summary = "Remove panierArticle by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The panier",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = PanierDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = PanierDTO::class))]),
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @PutMapping("/api/paniers/removeQuantity/{userEmail}/{articleId}")
@@ -211,8 +215,8 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
                 val article = articlePanier.find { it.articleId == articleId }
                 articlePanier.remove(article)
                 return panierRepository.update(Panier(userEmail, articlePanier)).fold(
-                    { success -> ResponseEntity.ok(success.asPanierDTO()) },
-                    { failure -> ResponseEntity.badRequest().body(failure.message) }
+                        { success -> ResponseEntity.ok(success.asPanierDTO()) },
+                        { failure -> ResponseEntity.badRequest().body(failure.message) }
                 )
             }
         }
@@ -252,6 +256,54 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
         }
     }
 
+
+    //ACHAT DU PANIER
+    @Operation(summary = "Achat du panier")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Panier acheté",
+                content = [Content(mediaType = "application/json",
+                        schema = Schema(implementation = PanierDTO::class))]),
+        ApiResponse(responseCode = "400", description = "Invalid request",
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = String::class))])])
+    @PutMapping("/api/paniers/achat/{userEmail}")
+    fun achat(@PathVariable userEmail: String): ResponseEntity<Any> {
+        val panier = panierRepository.get(userEmail)
+        if (panier == null) {
+            return ResponseEntity.badRequest().body("Le panier n'existe pas")
+        } else {
+            val articlesPanier = panier.articlesPanier
+            //Pour chaque article, on revérifie qu'il y a encore la quantité demandée en stock
+            //On calcul le prix en même temps pour pas avoir à refaire une boucle
+            var prixTotal = 0.0
+            for (articlePanier in articlesPanier) {
+                val article = httpService.get("articles/${articlePanier.articleId}")
+                val articleDTO = ObjectMapper().readValue(article, Article::class.java)
+                val quantiteDispo = articleDTO.qteStock
+                if (articlePanier.quantite > quantiteDispo) {
+                    throw NotEnoughStockError(articlePanier.articleId.toString())
+                }
+                prixTotal += articleDTO.prix * articlePanier.quantite
+            }
+
+            //On décrémente la quantité de chaque article après avoir vérifié qu'il y avait assez de stock pour chaque article
+            for (articlePanier in articlesPanier) {
+                val article = httpService.get("articles/${articlePanier.articleId}")
+                val quantiteDispo = ObjectMapper().readValue(article, Article::class.java).qteStock
+                httpService.decreaseQuantity(articlePanier.articleId, quantiteDispo - articlePanier.quantite)
+            }
+
+            //On met à jour la date de dernière commande du user
+            httpService.updateLastOrderDate(userEmail)
+
+            //On vide le panier
+            panier.articlesPanier.clear()
+
+            return ResponseEntity.ok("Le prix total est de $prixTotal €, Merci de votre achat !")
+        }
+    }
+
+
+
 }
 
 
@@ -260,7 +312,15 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
 
 
 
-
+class Article(
+        val id: Int,
+        val nom: String,
+        val prix: Double,
+        var qteStock: Int,
+        var dateMAJ: String
+) {
+    constructor() : this(0, "", 0.0, 0, "")
+}
 
 
 

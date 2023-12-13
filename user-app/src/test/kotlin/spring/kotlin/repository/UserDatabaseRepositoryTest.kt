@@ -22,6 +22,7 @@ class UserDatabaseRepositoryTest {
     @BeforeEach
     fun setUp() {
         repository = UserDatabaseRepository(jpa)
+        jpa.deleteAll()
     }
 
     @Nested

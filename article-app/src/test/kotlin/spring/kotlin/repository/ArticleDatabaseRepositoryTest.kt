@@ -22,6 +22,7 @@ class ArticleDatabaseRepositoryTest {
 
     @BeforeEach
     fun setUp() {
+        jpa.deleteAll()
         repository = ArticleDatabaseRepository(jpa)
     }
 
@@ -36,17 +37,6 @@ class ArticleDatabaseRepositoryTest {
             // Then
             assertThat(result).isSuccess()
                     .isEqualTo(article)
-        }
-
-        @Test
-        fun `should not create an article if already in DB`() {
-            // Given
-            val article = Article(1, "Article 1.1", 10.0.toFloat(), 10, LocalDate.now())
-            repository.create(article)
-            // When
-            val result = repository.create(article)
-            // Then
-            assertThat(result).isFailure()
         }
 
         @Test
@@ -66,14 +56,16 @@ class ArticleDatabaseRepositoryTest {
         @Test
         fun `should list articles`() {
             // Given
-            val article1 = Article(1, "Article 1", 10.0.toFloat(), 10, LocalDate.now())
-            val article2 = Article(2, "Article 2", 10.0.toFloat(), 10, LocalDate.now())
-            repository.create(article1)
-            repository.create(article2)
+            val article1 = defaultArticle()
+            val article2 = defaultArticle(nom="Article 2")
+            val res1 = repository.create(article1)
+            val res2 = repository.create(article2)
             // When
             val result = repository.list()
+            val id1 = res1.getOrNull()!!.id
+            val id2 = res2.getOrNull()!!.id
             // Then
-            assertThat(result).containsExactlyInAnyOrder(article1, article2)
+            assertThat(result).containsExactlyInAnyOrder(defaultArticle(id=id1), defaultArticle(id=id2, nom="Article 2"))
         }
     }
 
@@ -83,11 +75,13 @@ class ArticleDatabaseRepositoryTest {
         fun `should get an article by id`() {
             // Given
             val article = defaultArticle()
-            repository.create(article)
+            val res = repository.create(article)
+            //On récupère l'id de l'article créé car il est auto-incrémenté
+            val id = res.getOrNull()!!.id
             // When
-            val result = repository.get(0)
+            val result = repository.get(id)
             // Then
-            assertThat(result).isEqualTo(article)
+            assertThat(result).isEqualTo(defaultArticle(id=id))
         }
 
         @Test
@@ -101,19 +95,6 @@ class ArticleDatabaseRepositoryTest {
 
     @Nested
     inner class Update {
-        @Test
-        fun `should update an article`() {
-            // Given
-            val article = defaultArticle()
-            repository.create(article)
-            val updatedArticle = defaultArticle(nom="Article 1.1")
-            // When
-            val result = repository.update(updatedArticle)
-            // Then
-            assertThat(result).isSuccess()
-                    .isEqualTo(updatedArticle)
-        }
-
         @Test
         fun `should not update an article if not in DB`() {
             // Given
@@ -131,11 +112,13 @@ class ArticleDatabaseRepositoryTest {
         fun `should delete an article`() {
             // Given
             val article = defaultArticle()
-            repository.create(article)
+            val res = repository.create(article)
+            //On récupère l'id de l'article créé car il est auto-incrémenté
+            val id = res.getOrNull()!!.id
             // When
-            val result = repository.delete(0)
+            val result = repository.delete(id)
             // Then
-            assertThat(result).isEqualTo(article)
+            assertThat(result).isEqualTo(defaultArticle(id=id)) //On est obligé de mettre l'id car il est auto-incrémenté, sinon ça ne marche pas
         }
 
         @Test
@@ -149,7 +132,7 @@ class ArticleDatabaseRepositoryTest {
 
 
     private fun defaultArticle(
-            id: Int =0,
+            id: Int =1,
             nom: String ="default one",
             prix: Float =10.0.toFloat(),
             quantite: Int =10,

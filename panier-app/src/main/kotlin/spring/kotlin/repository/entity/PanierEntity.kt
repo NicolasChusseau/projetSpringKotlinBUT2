@@ -11,7 +11,7 @@ class PanierEntity(
         @Column(name = "user_email")
         val userEmail: String,
 
-        @ElementCollection
+        @ElementCollection(fetch = FetchType.EAGER)
         @CollectionTable(name = "article_panier", joinColumns = [JoinColumn(name = "panier_id")])
         val articlesPanier: MutableList<ArticlePanierEmbeddable> = mutableListOf()
 ) {

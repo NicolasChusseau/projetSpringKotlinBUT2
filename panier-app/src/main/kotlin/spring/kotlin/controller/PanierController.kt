@@ -70,28 +70,6 @@ class PanierController(val panierRepository: PanierRepository) {
         }
     }
 
-    @Operation(summary = "Add panierArticle by id")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "The panier",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = PanierDTO::class))]),
-        ApiResponse(responseCode = "404", description = "Panier not found")
-    ])
-    @GetMapping("/api/paniers/addToPanier/{userEmail}/{articleId}/{quantite}")
-    fun addArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int, @PathVariable quantite: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
-        if (userEmail != panier.userEmail) {
-            ResponseEntity.badRequest().body("Invalid id")
-        } else {
-            val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
-            val panierActuel = panierRepository.get(userEmail)
-            panierActuel?.articlesPanier?.add(newArticle.getOrNull()!!)
-            panierRepository.update(panier.asPanier()).fold(
-                { success -> ResponseEntity.ok(success.asPanierDTO()) },
-                { failure -> ResponseEntity.badRequest().body(failure.message) }
-            )
-        }
-
     //TODO
     @Operation(summary = "Add quantity panierArticle by id")
     @ApiResponses(value = [
@@ -128,31 +106,6 @@ class PanierController(val panierRepository: PanierRepository) {
             }
         }
 
-
-    //TODO
-    @Operation(summary = "Remove panierArticle by id")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "The panier",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = PanierDTO::class))]),
-        ApiResponse(responseCode = "404", description = "Panier not found")
-    ])
-    @GetMapping("/api/paniers/addToPanier/{userEmail}/{articleId}/{quantite}")
-    fun removeArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int, @PathVariable quantite: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
-        if (userEmail != panier.userEmail) {
-            ResponseEntity.badRequest().body("Invalid id")
-        } else {
-            val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
-            val panierActuel = panierRepository.get(userEmail)
-            panierActuel?.articlesPanier?.add(newArticle.getOrNull()!!)
-            panierRepository.update(panier.asPanier()).fold(
-                { success -> ResponseEntity.ok(success.asPanierDTO()) },
-                { failure -> ResponseEntity.badRequest().body(failure.message) }
-            )
-        }
-
-
     //TODO
     @Operation(summary = "Remove quantity panierArticle by id")
     @ApiResponses(value = [
@@ -167,7 +120,7 @@ class PanierController(val panierRepository: PanierRepository) {
         if (userEmail != panier.userEmail) {
             ResponseEntity.badRequest().body("Invalid id")
         } else {
-            val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
+            val newArticle = panier.articlesPanier.create(ArticlePanier(userEmail, articleId, quantite))
             val panierActuel = panierRepository.get(userEmail)
             panierActuel?.articlesPanier?.add(newArticle.getOrNull()!!)
             panierRepository.update(panier.asPanier()).fold(

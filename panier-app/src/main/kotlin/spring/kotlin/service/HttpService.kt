@@ -11,14 +11,14 @@ import java.time.LocalDate
 @Service
 class HttpService {
 
-    private val baseUrl = "http://localhost:8081/api/"
+    private val baseUrlArticle = "http://localhost:8081/api/"
     private val baseUrlUser = "http://localhost:8080/api/"
     private val client: HttpClient = HttpClient.newHttpClient()
 
     // Exécute une requête HTTP GET
     fun get(endpoint: String): String {
         val request = HttpRequest.newBuilder()
-                .uri(URI.create("$baseUrl$endpoint"))
+                .uri(URI.create("$baseUrlArticle$endpoint"))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build()
@@ -51,7 +51,7 @@ class HttpService {
     fun decreaseQuantity(id: Int, quantity: Int) {
         //TODO: à compléter une fois que l'api article sera disponible
         val request = HttpRequest.newBuilder()
-                .uri(URI.create("${baseUrl}articles/decreaseQuantity/$id/$quantity"))
+                .uri(URI.create("${baseUrlArticle}articles/decreaseQuantity/$id/$quantity"))
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString("{\"id\":$id,\"qteStock\":$quantity}"))
                 .build()
@@ -63,17 +63,18 @@ class HttpService {
         }
     }
 
+    //TODO marche pas encore
     // Put qui change la date de dernière commande du user
     fun updateLastOrderDate(userEmail: String) {
         //On get le user
-        val res = getUser("users/$userEmail")
+        val res = getUser("users/${userEmail}")
         //On transforme le String en UserDTO
         val user = ObjectMapper().readValue(res, User::class.java)
         //On change la date de dernière commande
-        user.dateDerniereCommande = LocalDate.now()
+        user.dateDerniereCommande = LocalDate.now().toString()
 
         //On transforme le UserDTO en String sans ObjectMapper car il ne peut pas sérialiser les LocalDate
-        val userString = "{\"email\":\"${user.email}\",\"nom\":\"${user.nom}\",\"adresseDeLivraison\":\"${user.adresseDeLivraison}\",\"estAbonnee\":${user.estAbonnee},\"dateDerniereCommande\":\"${user.dateDerniereCommande}\",\"age\":${user.age}}"
+        val userString = ObjectMapper().writeValueAsString(user)
 
         //On fait le put vers l'api des users :)
         val request = HttpRequest.newBuilder()
@@ -96,7 +97,7 @@ class User(
         val nom: String,
         val adresseDeLivraison: String,
         val estAbonnee: Boolean,
-        var dateDerniereCommande: LocalDate?,
+        var dateDerniereCommande: String?,
         val age: Int
 ){
     constructor() : this("", "", "", false, null, 0)

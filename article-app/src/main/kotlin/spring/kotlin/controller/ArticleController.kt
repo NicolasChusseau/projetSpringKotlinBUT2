@@ -131,8 +131,8 @@ class ArticleController(val articleRepository: ArticleRepository) {
         if (existArticle == null) {
             return ResponseEntity.badRequest().body("L'article n'existe pas")
         } else {
-            if (quantite >= existArticle.qteStock) {
-                articleRepository.delete(existArticle.id)
+            if (quantite > existArticle.qteStock) {
+                return ResponseEntity.badRequest().body("Quantité non suffisante")
             } else {
                 existArticle.qteStock -= quantite
             }

@@ -116,7 +116,7 @@ class UserController(
                 responseCode = "200", description = "User updated",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = UserDTO::class)
+                    schema = Schema(implementation = User::class)
                 )]
             ),
             ApiResponse(
@@ -125,11 +125,11 @@ class UserController(
             )]
     )
     @PutMapping("/api/users/{email}")
-    fun update(@PathVariable @Email email: String, @RequestBody @Valid user: UserDTO): ResponseEntity<Any> =
+    fun update(@PathVariable @Email email: String, @RequestBody @Valid user: User): ResponseEntity<Any> =
         if (email != user.email) {
             ResponseEntity.badRequest().body("Invalid email")
         } else {
-            userRepository.update(user.asUser()).fold(
+            userRepository.update(user).fold(
                 { success -> ResponseEntity.ok(success.asUserDTO()) },
                 { failure -> ResponseEntity.badRequest().body(failure.message) }
             )

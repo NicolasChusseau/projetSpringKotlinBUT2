@@ -93,7 +93,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
             @PathVariable quantite: Int
     ): ResponseEntity<Any> {
         if (panierRepository.get(userEmail) == null) {
-            return ResponseEntity.badRequest().body("Invalid id")
+            return ResponseEntity.badRequest().body("Email invalide")
         } else {
             //On vérifie si l'article existe en http
             val article: String
@@ -272,6 +272,10 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
             return ResponseEntity.badRequest().body("Le panier n'existe pas")
         } else {
             val articlesPanier = panier.articlesPanier
+            //Si il n'y a pas d'articles dans le panier
+            if (articlesPanier.size == 0) {
+                return ResponseEntity.badRequest().body("Le panier est vide")
+            }
             //Pour chaque article, on revérifie qu'il y a encore la quantité demandée en stock
             //On calcul le prix en même temps pour pas avoir à refaire une boucle
             var prixTotal = 0.0
@@ -287,9 +291,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
 
             //On décrémente la quantité de chaque article après avoir vérifié qu'il y avait assez de stock pour chaque article
             for (articlePanier in articlesPanier) {
-                val article = httpService.get("articles/${articlePanier.articleId}")
-                val quantiteDispo = ObjectMapper().readValue(article, Article::class.java).qteStock
-                httpService.decreaseQuantity(articlePanier.articleId, quantiteDispo - articlePanier.quantite)
+                httpService.decreaseQuantity(articlePanier.articleId, articlePanier.quantite)
             }
 
             //On met à jour la date de dernière commande du user
@@ -297,6 +299,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
 
             //On vide le panier
             panier.articlesPanier.clear()
+            panierRepository.update(panier)
 
             return ResponseEntity.ok("Le prix total est de $prixTotal €, Merci de votre achat !")
         }

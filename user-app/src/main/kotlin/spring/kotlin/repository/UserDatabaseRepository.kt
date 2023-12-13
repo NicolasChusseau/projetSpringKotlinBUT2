@@ -22,8 +22,8 @@ class UserDatabaseRepository(private val jpa: UserJpaRepository) : UserRepositor
 
     override fun get(email: String): User? {
         return jpa.findById(email)
-            .map { it.asUser() }
-            .getOrNull()
+                .map { it.asUser() }
+                .getOrNull()
     }
 
     override fun update(user: User): Result<User> = if (jpa.findById(user.email).isPresent) {
@@ -35,9 +35,9 @@ class UserDatabaseRepository(private val jpa: UserJpaRepository) : UserRepositor
 
     override fun delete(email: String): User? {
         return jpa.findById(email)
-            .also { jpa.deleteById(email) }
-            .map { it.asUser() }
-            .getOrNull()
+                .also { jpa.deleteById(email) }
+                .map { it.asUser() }
+                .getOrNull()
     }
 
 }

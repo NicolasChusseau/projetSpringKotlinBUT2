@@ -1,6 +1,5 @@
 package spring.kotlin.controller.dto
 
-import org.springframework.data.annotation.Id
 import spring.kotlin.domain.Article
 import java.time.LocalDate
 

@@ -1,4 +1,5 @@
 package spring.kotlin.repository
+
 import assertk.assertThat
 import assertk.assertions.*
 import org.junit.jupiter.api.Nested

@@ -1,6 +1,5 @@
 package spring.kotlin.controller.dto
 
-import jakarta.validation.constraints.Email
 import spring.kotlin.domain.ArticlePanier
 
 data class ArticlePanierDTO(

@@ -1,7 +1,6 @@
 package spring.kotlin.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
 import spring.kotlin.domain.Panier
 import spring.kotlin.repository.entity.PanierEntity
 import spring.kotlin.repository.entity.asEntity
@@ -22,8 +21,8 @@ class PanierDatabaseRepository(private val jpa: PanierJpaRepository) : PanierRep
 
     override fun get(userId: String): Panier? {
         return jpa.findById(userId)
-            .map { it.asPanier() }
-            .getOrNull()
+                .map { it.asPanier() }
+                .getOrNull()
     }
 
     override fun update(panier: Panier): Result<Panier> = if (jpa.findById(panier.userEmail).isPresent) {
@@ -35,9 +34,9 @@ class PanierDatabaseRepository(private val jpa: PanierJpaRepository) : PanierRep
 
     override fun delete(userId: String): Panier? {
         return jpa.findById(userId)
-            .also { jpa.deleteById(userId) }
-            .map { it.asPanier() }
-            .getOrNull()
+                .also { jpa.deleteById(userId) }
+                .map { it.asPanier() }
+                .getOrNull()
     }
 }
 

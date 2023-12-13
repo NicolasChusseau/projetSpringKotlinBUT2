@@ -57,7 +57,7 @@ class ArticleDatabaseRepositoryTest {
         fun `should list articles`() {
             // Given
             val article1 = defaultArticle()
-            val article2 = defaultArticle(nom="Article 2")
+            val article2 = defaultArticle(nom = "Article 2")
             val res1 = repository.create(article1)
             val res2 = repository.create(article2)
             // When
@@ -65,7 +65,7 @@ class ArticleDatabaseRepositoryTest {
             val id1 = res1.getOrNull()!!.id
             val id2 = res2.getOrNull()!!.id
             // Then
-            assertThat(result).containsExactlyInAnyOrder(defaultArticle(id=id1), defaultArticle(id=id2, nom="Article 2"))
+            assertThat(result).containsExactlyInAnyOrder(defaultArticle(id = id1), defaultArticle(id = id2, nom = "Article 2"))
         }
     }
 
@@ -81,7 +81,7 @@ class ArticleDatabaseRepositoryTest {
             // When
             val result = repository.get(id)
             // Then
-            assertThat(result).isEqualTo(defaultArticle(id=id))
+            assertThat(result).isEqualTo(defaultArticle(id = id))
         }
 
         @Test
@@ -98,7 +98,7 @@ class ArticleDatabaseRepositoryTest {
         @Test
         fun `should not update an article if not in DB`() {
             // Given
-            val updatedArticle = defaultArticle(nom="Article 1.1")
+            val updatedArticle = defaultArticle(nom = "Article 1.1")
             // When
             val result = repository.update(updatedArticle)
             // Then
@@ -118,7 +118,7 @@ class ArticleDatabaseRepositoryTest {
             // When
             val result = repository.delete(id)
             // Then
-            assertThat(result).isEqualTo(defaultArticle(id=id)) //On est obligé de mettre l'id car il est auto-incrémenté, sinon ça ne marche pas
+            assertThat(result).isEqualTo(defaultArticle(id = id)) //On est obligé de mettre l'id car il est auto-incrémenté, sinon ça ne marche pas
         }
 
         @Test
@@ -132,10 +132,10 @@ class ArticleDatabaseRepositoryTest {
 
 
     private fun defaultArticle(
-            id: Int =1,
-            nom: String ="default one",
-            prix: Float =10.0.toFloat(),
-            quantite: Int =10,
-            dateMAJ: LocalDate =LocalDate.now()
+            id: Int = 1,
+            nom: String = "default one",
+            prix: Float = 10.0.toFloat(),
+            quantite: Int = 10,
+            dateMAJ: LocalDate = LocalDate.now()
     ) = Article(id, nom, prix, quantite, dateMAJ)
 }

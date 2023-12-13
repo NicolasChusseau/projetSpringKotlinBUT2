@@ -20,10 +20,6 @@ import spring.kotlin.errors.NotEnoughStockError
 import spring.kotlin.errors.PanierNotFoundError
 import spring.kotlin.repository.PanierRepository
 import spring.kotlin.service.HttpService
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 
 
 @RestController
@@ -306,13 +302,7 @@ class PanierController(val panierRepository: PanierRepository, val httpService: 
     }
 
 
-
 }
-
-
-
-
-
 
 
 class Article(

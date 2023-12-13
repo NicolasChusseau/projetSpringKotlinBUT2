@@ -16,9 +16,6 @@ import spring.kotlin.controller.dto.asArticleDTO
 import spring.kotlin.domain.Article
 import spring.kotlin.errors.ArticleNotFoundError
 import spring.kotlin.repository.ArticleRepository
-import java.net.URI
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 import java.time.LocalDate
 
 @RestController
@@ -78,15 +75,15 @@ class ArticleController(val articleRepository: ArticleRepository) {
     @Operation(summary = "Add quantity to article")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The article",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = ArticleDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = ArticleDTO::class))]),
         ApiResponse(responseCode = "404", description = "Article not found")
     ])
     @PutMapping("/addQuantity/{id}/{quantite}")
     fun addQuantityArticlePanier(
-        @PathVariable id: Int,
-        @PathVariable quantite: Int
+            @PathVariable id: Int,
+            @PathVariable quantite: Int
     ): ResponseEntity<Any> {
         val existArticle = articleRepository.get(id)
         if (quantite < 0) {
@@ -96,33 +93,32 @@ class ArticleController(val articleRepository: ArticleRepository) {
             return ResponseEntity.badRequest().body("L'article n'existe pas")
         } else {
             val updatedArticle = Article(
-                id = existArticle.id,
-                nom = existArticle.nom,
-                prix = existArticle.prix,
-                qteStock = existArticle.qteStock + quantite,
-                dateMAJ = existArticle.dateMAJ
+                    id = existArticle.id,
+                    nom = existArticle.nom,
+                    prix = existArticle.prix,
+                    qteStock = existArticle.qteStock + quantite,
+                    dateMAJ = existArticle.dateMAJ
             )
             return articleRepository.update(updatedArticle).fold(
-                { success -> ResponseEntity.ok(success.asArticleDTO()) },
-                { failure -> ResponseEntity.badRequest().body(failure.message) }
+                    { success -> ResponseEntity.ok(success.asArticleDTO()) },
+                    { failure -> ResponseEntity.badRequest().body(failure.message) }
             )
         }
     }
 
 
-
     @Operation(summary = "Decrease quantity to article")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The article",
-            content = [
-                Content(mediaType = "application/json",
-                    schema = Schema(implementation = ArticleDTO::class))]),
+                content = [
+                    Content(mediaType = "application/json",
+                            schema = Schema(implementation = ArticleDTO::class))]),
         ApiResponse(responseCode = "404", description = "Article not found")
     ])
     @PutMapping("/api/articles/decreaseQuantity/{id}/{quantite}")
     fun decreaseQuantityArticlePanier(
-        @PathVariable id: Int,
-        @PathVariable quantite: Int
+            @PathVariable id: Int,
+            @PathVariable quantite: Int
     ): ResponseEntity<Any> {
         val existArticle = articleRepository.get(id)
         if (quantite < 0) {
@@ -137,8 +133,8 @@ class ArticleController(val articleRepository: ArticleRepository) {
                 existArticle.qteStock -= quantite
             }
             return articleRepository.update(Article(existArticle.id, existArticle.nom, existArticle.prix, existArticle.qteStock, LocalDate.now())).fold(
-                { success -> ResponseEntity.ok(success.asArticleDTO()) },
-                { failure -> ResponseEntity.badRequest().body(failure.message) }
+                    { success -> ResponseEntity.ok(success.asArticleDTO()) },
+                    { failure -> ResponseEntity.badRequest().body(failure.message) }
             )
         }
     }

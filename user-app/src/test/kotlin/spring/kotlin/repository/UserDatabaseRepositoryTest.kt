@@ -1,7 +1,7 @@
 package spring.kotlin.repository
 
-import assertk.assertions.*
 import assertk.assertThat
+import assertk.assertions.*
 import com.ninjasquad.springmockk.MockkBean
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

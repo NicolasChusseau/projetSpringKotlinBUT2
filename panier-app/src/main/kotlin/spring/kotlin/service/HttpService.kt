@@ -32,7 +32,7 @@ class HttpService {
         }
     }
 
-    fun getUser(endpoint: String): String{
+    fun getUser(endpoint: String): String {
         val request = HttpRequest.newBuilder()
                 .uri(URI.create("$baseUrlUser$endpoint"))
                 .header("Content-Type", "application/json")
@@ -98,7 +98,7 @@ class User(
         val estAbonnee: Boolean,
         var dateDerniereCommande: String?,
         val age: Int
-){
+) {
     constructor() : this("", "", "", false, null, 0)
 }
 

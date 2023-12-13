@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity
 import spring.kotlin.controller.dto.UserDTO
 import spring.kotlin.domain.User
 import spring.kotlin.repository.UserRepository
-import java.time.LocalDate
 
 @SpringBootTest
 class UserControllerTest {
@@ -34,6 +33,7 @@ class UserControllerTest {
             // THEN
             assertThat(result).isEqualTo(ResponseEntity.ok(update))
         }
+
         @Test
         fun `update a non-existing user`() {
             // GIVEN

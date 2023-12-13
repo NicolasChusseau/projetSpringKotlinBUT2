@@ -1,6 +1,5 @@
 package spring.kotlin.repository
 
-import org.springframework.stereotype.Repository
 import spring.kotlin.domain.Panier
 
 class PanierInMemoryRepository : PanierRepository {

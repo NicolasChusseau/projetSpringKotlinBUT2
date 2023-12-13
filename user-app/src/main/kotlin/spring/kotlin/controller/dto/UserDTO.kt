@@ -4,18 +4,17 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import spring.kotlin.domain.User
-import java.time.LocalDate
 
 data class UserDTO(
-    @field:Email val email: String,
-    val nom: String,
-    val adresseDeLivraison: String,
-    val estAbonnee: Boolean,
-    @field:Min(15) @field:Max(120) val age: Int
+        @field:Email val email: String,
+        val nom: String,
+        val adresseDeLivraison: String,
+        val estAbonnee: Boolean,
+        @field:Min(15) @field:Max(120) val age: Int
 ) {
     fun asUser() =
-        User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, null, this.age)
+            User(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, null, this.age)
 }
 
 fun User.asUserDTO() =
-    UserDTO(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.age)
+        UserDTO(this.email, this.nom, this.adresseDeLivraison, this.estAbonnee, this.age)

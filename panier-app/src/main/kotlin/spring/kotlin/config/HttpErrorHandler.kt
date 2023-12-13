@@ -22,7 +22,7 @@ class HttpErrorHandler : ResponseEntityExceptionHandler() {
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun constraintViolationException(e: ConstraintViolationException) =
-        ResponseEntity.badRequest().body("Noooo")
+            ResponseEntity.badRequest().body("Noooo")
 
     @ExceptionHandler(PanierNotFoundError::class)
     fun articleNotFound(e: PanierNotFoundError) = ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)

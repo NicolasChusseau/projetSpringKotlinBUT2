@@ -28,7 +28,7 @@ class UserControllerTest {
         fun `update valid`() {
             // GIVEN
             every { userRepository.update(any()) } returns Result.success(User("email@email.com", "first", "la", true, null, 15))
-            val update = UserDTO("email@email.com", "first", "la", true, null, 16)
+            val update = UserDTO("email@email.com", "first", "la", true, null, 15)
             // WHEN
             val result = userController.update("email@email.com", update)
             // THEN

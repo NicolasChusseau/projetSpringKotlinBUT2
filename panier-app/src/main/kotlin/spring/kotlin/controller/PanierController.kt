@@ -77,8 +77,7 @@ class PanierController(val panierRepository: PanierRepository) {
         }
     }
 
-    //TODO
-    @Operation(summary = "Add quantity panierArticle by id")
+    @Operation(summary = "Add article or quantity panierArticle by id")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "The panier",
             content = [
@@ -108,6 +107,9 @@ class PanierController(val panierRepository: PanierRepository) {
             val article = response.body()
             val quantiteDispo = article.substringAfter("qteStock\":").substringBefore(",")
 
+            if (quantite < 0) {
+                return ResponseEntity.badRequest().body("La quantité demandée est négative")
+            }
 
             val existingArticlePanier = panierRepository.get(userEmail)?.articlesPanier?.find { it.articleId == articleId }
             if (existingArticlePanier == null) {
@@ -162,7 +164,9 @@ class PanierController(val panierRepository: PanierRepository) {
             if (response.statusCode() == 404) {
                 return ResponseEntity.badRequest().body("L'article n'existe pas")
             }
-
+            if (quantite < 0) {
+                return ResponseEntity.badRequest().body("La quantité demandée est négative")
+            }
             val existingArticle = panierRepository.get(userEmail)?.articlesPanier?.find { it.articleId == articleId }
             if (existingArticle == null) {
                 // L'article avec articleId n'existe pas dans le panier
@@ -171,7 +175,7 @@ class PanierController(val panierRepository: PanierRepository) {
                 // Si la quantité à retirer est supérieure à la quantité de l'article dans le panier
                 val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
                 val article = articlePanier.find { it.articleId == articleId }
-                if (quantite > existingArticle.quantite) {
+                if (quantite >= existingArticle.quantite) {
                     //On retire l'article du panier
                     articlePanier.remove(article)
                 } else {
@@ -181,6 +185,46 @@ class PanierController(val panierRepository: PanierRepository) {
                 return panierRepository.update(Panier(userEmail, articlePanier)).fold(
                         { success -> ResponseEntity.ok(success.asPanierDTO()) },
                         { failure -> ResponseEntity.badRequest().body(failure.message) }
+                )
+            }
+        }
+    }
+
+    @Operation(summary = "Remove panierArticle by id")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "The panier",
+            content = [
+                Content(mediaType = "application/json",
+                    schema = Schema(implementation = PanierDTO::class))]),
+        ApiResponse(responseCode = "404", description = "Panier not found")
+    ])
+    @PutMapping("/api/paniers/removeQuantity/{userEmail}/{articleId}")
+    fun removeArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int): ResponseEntity<Any> {
+        if (panierRepository.get(userEmail) == null) {
+            return ResponseEntity.badRequest().body("Le panier n'existe pas")
+        } else {
+            //On vérifie si l'article existe en http
+            val request: HttpRequest = HttpRequest.newBuilder()
+                .uri(URI.create("$urlArticle$articleId"))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build()
+            val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
+            if (response.statusCode() == 404) {
+                return ResponseEntity.badRequest().body("L'article n'existe pas")
+            }
+
+            val existingArticle = panierRepository.get(userEmail)?.articlesPanier?.find { it.articleId == articleId }
+            if (existingArticle == null) {
+                // L'article avec articleId n'existe pas dans le panier
+                return ResponseEntity.badRequest().body("L'article n'existe pas dans le panier")
+            } else {
+                val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
+                val article = articlePanier.find { it.articleId == articleId }
+                articlePanier.remove(article)
+                return panierRepository.update(Panier(userEmail, articlePanier)).fold(
+                    { success -> ResponseEntity.ok(success.asPanierDTO()) },
+                    { failure -> ResponseEntity.badRequest().body(failure.message) }
                 )
             }
         }

@@ -92,17 +92,22 @@ class PanierController(val panierRepository: PanierRepository) {
 
             if (existingArticle == null) {
                 // L'article avec articleId n'existe pas dans le panier
-                val newArticle = articlePanier.create(ArticlePanier(userEmail, articleId, quantite))
-                val panierActuel = panierRepository.get(userEmail)
-                panierActuel?.articlesPanier?.add(newArticle.getOrNull()!!)
-                panierRepository.update(panier.asPanier()).fold(
+                val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
+                articlePanier.add(ArticlePanier(articleId, quantite))
+                panierRepository.update(Panier(userEmail, articlePanier)).fold(
                     { success -> ResponseEntity.ok(success.asPanierDTO()) },
                     { failure -> ResponseEntity.badRequest().body(failure.message) }
                 )
             } else {
                 // L'article avec articleId existe déjà dans le panier
-                // Faites quelque chose en conséquence
-                ResponseEntity.badRequest().body("L'article avec l'ID $articleId existe déjà dans le panier.")
+                val articlePanier = panierRepository.get(userEmail)!!.articlesPanier
+                existingArticle.quantite += quantite
+                articlePanier.map { it.articleId == articleId }
+                panierRepository.update(Panier(userEmail, articlePanier))
+                panierRepository.update(Panier(userEmail, articlePanier)).fold(
+                    { success -> ResponseEntity.ok(success.asPanierDTO()) },
+                    { failure -> ResponseEntity.badRequest().body(failure.message) }
+                )
             }
         }
 
@@ -116,7 +121,7 @@ class PanierController(val panierRepository: PanierRepository) {
         ApiResponse(responseCode = "404", description = "Panier not found")
     ])
     @GetMapping("/api/paniers/addToPanier/{userEmail}/{articleId}/{quantite}")
-    fun removeQuantityArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int, @PathVariable quantite: Int, @RequestBody @Valid panier: PanierDTO): ResponseEntity<Any> =
+    fun removeQuantityArticlePanier(@PathVariable userEmail: String, @PathVariable articleId: Int, @PathVariable quantite: Int): ResponseEntity<Any> =
         if (userEmail != panier.userEmail) {
             ResponseEntity.badRequest().body("Invalid id")
         } else {

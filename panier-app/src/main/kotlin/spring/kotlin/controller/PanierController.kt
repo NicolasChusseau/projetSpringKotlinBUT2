@@ -17,6 +17,7 @@ import spring.kotlin.domain.ArticlePanier
 import spring.kotlin.domain.Panier
 import spring.kotlin.errors.PanierNotFoundError
 import spring.kotlin.repository.PanierRepository
+import spring.kotlin.service.HttpService
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -25,9 +26,7 @@ import java.net.http.HttpResponse
 
 @RestController
 @Validated
-class PanierController(val panierRepository: PanierRepository) {
-    val urlArticle = "http://localhost:8081/api/articles/"
-    val client: HttpClient = HttpClient.newHttpClient()
+class PanierController(val panierRepository: PanierRepository, val httpService: HttpService) {
 
     @Operation(summary = "Create panier")
     @ApiResponses(value = [
@@ -95,17 +94,13 @@ class PanierController(val panierRepository: PanierRepository) {
             return ResponseEntity.badRequest().body("Invalid id")
         } else {
             //On vérifie si l'article existe en http
-            val request: HttpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("$urlArticle$articleId"))
-                    .header("Content-Type", "application/json")
-                    .GET()
-                    .build()
-            val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-            if (response.statusCode() == 404) {
-                return ResponseEntity.badRequest().body("${response.statusCode()} \n ${response.body()}")
+            val article : String
+            try{
+                article = httpService.get("articles/$articleId")
+            } catch (e: Exception) {
+                return ResponseEntity.badRequest().body("L'article n'existe pas")
             }
-            val article = response.body()
-            val quantiteDispo = article.substringAfter("qteStock\":").substringBefore(",")
+            val quantiteDispo = article.substringAfter("qteStock\": ").substringBefore(",")
 
             if (quantite < 0) {
                 return ResponseEntity.badRequest().body("La quantité demandée est négative")
@@ -155,15 +150,12 @@ class PanierController(val panierRepository: PanierRepository) {
             return ResponseEntity.badRequest().body("Le panier n'existe pas")
         } else {
             //On vérifie si l'article existe en http
-            val request: HttpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("$urlArticle$articleId"))
-                    .header("Content-Type", "application/json")
-                    .GET()
-                    .build()
-            val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-            if (response.statusCode() == 404) {
+            try {
+                httpService.get("articles/$articleId")
+            } catch (e: Exception) {
                 return ResponseEntity.badRequest().body("L'article n'existe pas")
             }
+
             if (quantite < 0) {
                 return ResponseEntity.badRequest().body("La quantité demandée est négative")
             }
@@ -204,13 +196,9 @@ class PanierController(val panierRepository: PanierRepository) {
             return ResponseEntity.badRequest().body("Le panier n'existe pas")
         } else {
             //On vérifie si l'article existe en http
-            val request: HttpRequest = HttpRequest.newBuilder()
-                .uri(URI.create("$urlArticle$articleId"))
-                .header("Content-Type", "application/json")
-                .GET()
-                .build()
-            val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
-            if (response.statusCode() == 404) {
+            try {
+                httpService.get("articles/$articleId")
+            } catch (e: Exception) {
                 return ResponseEntity.badRequest().body("L'article n'existe pas")
             }
 

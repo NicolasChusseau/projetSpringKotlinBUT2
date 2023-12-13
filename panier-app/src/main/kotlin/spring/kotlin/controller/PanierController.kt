@@ -16,13 +16,12 @@ import spring.kotlin.controller.dto.asPanierDTO
 import spring.kotlin.domain.ArticlePanier
 import spring.kotlin.domain.Panier
 import spring.kotlin.errors.PanierNotFoundError
-import spring.kotlin.repository.ArticlePanierRepository
 import spring.kotlin.repository.PanierRepository
 
 
 @RestController
 @Validated
-class PanierController(val panierRepository: PanierRepository, val articlePanier: ArticlePanierRepository) {
+class PanierController(val panierRepository: PanierRepository) {
     @Operation(summary = "Create panier")
     @ApiResponses(value = [
         ApiResponse(responseCode = "201", description = "Panier created",

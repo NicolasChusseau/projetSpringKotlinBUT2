@@ -63,7 +63,6 @@ class HttpService {
         }
     }
 
-    //TODO marche pas encore
     // Put qui change la date de dernière commande du user
     fun updateLastOrderDate(userEmail: String) {
         //On get le user
